@@ -18,7 +18,16 @@ def playNote(frequency, duration =15, samplingRate = 44100):
     frames = int(duration * samplingRate)
 
     # Divide the duration into frames and make an array with the appropriate cos value in each
-    waveTable = np.cos(2 * np.pi * frequency * np.linspace(0, duration, frames))
+    waveTable = np.sin(2 * np.pi * frequency * np.linspace(0, duration, frames))
+    """waveTable = waveTable + np.sin(4 * np.pi * frequency * np.linspace(0, duration, frames))
+    waveTable = waveTable + np.sin(6 * np.pi * frequency * np.linspace(0, duration, frames))
+
+    for i in range(len(waveTable)):
+        waveTable[i] /= 2+(i**(1/2))/5"""
+
+    #waveTable = waveTable + np.sin(8 * np.pi * frequency * np.linspace(0, duration, frames))/8
+    #waveTable = waveTable + np.sin(10 * np.pi * frequency * np.linspace(0, duration, frames))/16
+
 
     # transform it into a 16 bit wave file that pygame can mix
     sound = np.asarray([32767 * waveTable, 32767 * waveTable]).T.astype(np.int16)
@@ -56,6 +65,9 @@ while True:
 
         played = True
         keylist = 'awsedftgyhujk'
+        notes["a4"][0].play()
+        notes["d4"][0].play()
+        notes["g4"][0].play()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
