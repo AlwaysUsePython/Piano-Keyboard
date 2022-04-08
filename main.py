@@ -19,11 +19,10 @@ def playNote(frequency, duration =15, samplingRate = 44100):
 
     # Divide the duration into frames and make an array with the appropriate cos value in each
     waveTable = np.sin(2 * np.pi * frequency * np.linspace(0, duration, frames))
-    """waveTable = waveTable + np.sin(4 * np.pi * frequency * np.linspace(0, duration, frames))
+    waveTable = waveTable + np.sin(4 * np.pi * frequency * np.linspace(0, duration, frames))
     waveTable = waveTable + np.sin(6 * np.pi * frequency * np.linspace(0, duration, frames))
-
     for i in range(len(waveTable)):
-        waveTable[i] /= 2+(i**(1/2))/5"""
+        waveTable[i] /= 2+(i**(1/2))/5
 
     #waveTable = waveTable + np.sin(8 * np.pi * frequency * np.linspace(0, duration, frames))/8
     #waveTable = waveTable + np.sin(10 * np.pi * frequency * np.linspace(0, duration, frames))/16
@@ -38,14 +37,33 @@ def playNote(frequency, duration =15, samplingRate = 44100):
 firstFreq = 16.3516
 
 notes = {}
+chordList = {}
+chordList["1"] = ["a4", "d4", "g4"]
+chordList["2"] = ["s4", "f4", "h4"]
+chordList["3"] = ["d4", "g4", "j4"]
+chordList["4"] = ["a4", "f4", "h4"]
+chordList["5"] = ["s4", "g4", "j4"]
+chordList["6"] = ["a4", "d4", "h4"]
+chordList["7"] = ["a4", "d4", "g4", "u4"]
+chordKeys = "1234567"
 keylist = 'awsedftgyhuj'
 modifiers = [pygame.K_LEFT, pygame.K_RIGHT]
 octave = 4
 
+def playChord(chordArr):
+    for note in chordArr:
+        notes[note][0].play()
+
+def releaseChord(chordArr):
+    for note in chordArr:
+        notes[note][0].fadeout(100)
+
+
+
 
 while True:
     if not played:
-        for i in range(len(notesList)-1):
+        for i in range(48, len(notesList)-1-48):
             mod = int(i/12)
             key = keylist[i-mod*12]+str(mod)
             print(notesList[i])
@@ -65,9 +83,7 @@ while True:
 
         played = True
         keylist = 'awsedftgyhujk'
-        notes["a4"][0].play()
-        notes["d4"][0].play()
-        notes["g4"][0].play()
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -89,13 +105,27 @@ while True:
                         notes[key + str(octave)][0].play()
                     except:
                         print("not in dictionary")
+
+                elif str(event.unicode) in chordKeys:
+                    key = str(event.unicode)
+                    print(key)
+                    try:
+                        print(chordList[key])
+                        playChord(chordList[key])
+                    except:
+                        print("not a chord")
         if event.type == pygame.KEYUP and event.key not in modifiers:
             try:
                 key = str(event.unicode)+str(octave)
                 notes[key][0].fadeout(100)
             except:
-                break
-
+                pass
+            try:
+                key = str(event.unicode)
+                print("releasing")
+                releaseChord(chordList[key])
+            except:
+                pass
 
 
     screen.fill((0, 0, 0))
