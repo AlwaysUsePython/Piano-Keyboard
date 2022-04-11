@@ -325,7 +325,7 @@ def createKeyboard():
         chordList["7" + str(num)] = ["a" + str(num), "d" + str(num), "g" + str(num), "u" + str(num), 0, "C7"]
         chordList["8" + str(num)] = ["d" + str(num), "g" + str(num), "k" + str(num), 0, "C1"]
         chordList["9" + str(num)] = ["s" + str(num), "f" + str(num), "g" + str(num), "j" + str(num), 0, "G7"]
-        chordList["0" + str(num)] = ["a" + str(num), "e" + str(num), "g" + str(num), "u" + str(num), 0, "C7"]
+        chordList["0" + str(num)] = ["a" + str(num), "e" + str(num), "g" + str(num), "u" + str(num), 0, "Cm7"]
 
     chordKeys = "1234567890"
     keylist = 'awsedftgyhuj'
