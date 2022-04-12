@@ -310,9 +310,44 @@ def setChordList(chordList):
     return chordList
 
 
+def drawMidi(midi, distance):
+    whiteKeys = ["C", "D", "E", "F", "G", "A", "B"]
+    for frame in midi.keys():
+        if frame - distance < 5:
+            for note in midi[frame][1]:
+                keyName = ""
+                for i in range(len(note) - 1):
+                    keyName+= note[i]
+                octave = int(note[-1])
+                if keyName in whiteKeys:
+                    pygame.draw.rect(screen, (100, 100, 255),
+                             pygame.Rect(15.857*7*octave + whiteKeys.index(keyName)*15.857, 440-(100*(distance - frame)), 15.875, 100*midi[frame][0]+1))
+                else:
+                    pygame.draw.rect(screen, (50, 50, 255),
+                                     pygame.Rect(15.857 * 7 * octave + whiteKeys.index(keyName[0]) * 15.857 + 10.58,
+                                                 440 - (100 * (distance - frame)), 2*(15.857 -10.58), 100 * midi[frame][0] + 1))
+
+def drawChordMidi(midi, distance):
+    whiteKeys = ["C", "D", "E", "F", "G", "A", "B"]
+    for frame in midi.keys():
+        if frame - distance < 5:
+            for note in midi[frame][1]:
+                keyName = ""
+                for i in range(len(note) - 1):
+                    keyName+= note[i]
+                octave = int(note[-1])
+                if keyName in whiteKeys:
+                    pygame.draw.rect(screen, (100, 255, 100),
+                             pygame.Rect(15.857*7*octave + whiteKeys.index(keyName)*15.857, 440-(100*(distance - frame)), 15.875, 100*midi[frame][0]+1))
+                else:
+                    pygame.draw.rect(screen, (50, 255, 50),
+                                     pygame.Rect(15.857 * 7 * octave + whiteKeys.index(keyName[0]) * 15.857 + 10.58,
+                                                 440 - (100 * (distance - frame)), 2*(15.857 -10.58), 100 * midi[frame][0] + 1))
 
 def createKeyboard():
-
+    start = time.time()
+    midi = {}
+    chordMidi = {}
     #DEFAULT CHORD LIST
     chordList = {}
     for num in range(8):
@@ -333,10 +368,12 @@ def createKeyboard():
     octave = 4
     chordOctave = 4
     played = False
+    prev = time.time()
     while True:
+        current = time.time()
         #played = True
         if not played:
-            for i in range(36, len(notesList)-1-47):
+            for i in range(36, len(notesList)-1-24):
                 mod = int(i/12)
                 key = keylist[i-mod*12]+str(mod)
                 print(notesList[i])
@@ -416,11 +453,40 @@ def createKeyboard():
                 except:
                     pass
 
+        chordNotes = []
+
+        for chord in chordList.keys():
+            if chordList[chord][-2] != 0:
+                for note in range(len(chordList[chord]) - 2):
+                    chordNotes.append(chordList[chord][note])
+
+        print(chordNotes)
+        midi[current-start] = [current - prev, []]
+        chordMidi[current-start] = [current - prev, []]
+        for note in notes:
+            if notes[note][3] != 0:
+                if note not in chordNotes:
+                    midi[current - start][1].append(notes[note][1])
+                else:
+                    chordMidi[current - start][1].append(notes[note][1])
+
+        delete = []
+        for frame in midi.keys():
+            if (current - start) -  frame > 5:
+                delete.append(frame)
+
+        for frame in delete:
+            del midi[frame]
+
+
 
         screen.fill((0, 0, 0))
+        drawMidi(midi, current - start)
+        drawChordMidi(chordMidi, current-start)
         drawKeyboard(notes)
         drawChordList(chordList, chordOctave)
         pygame.display.update()
+        prev = current
 
 
 createKeyboard()
