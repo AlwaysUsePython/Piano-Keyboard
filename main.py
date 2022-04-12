@@ -1,10 +1,28 @@
 """
-IDEAS
+CONTROLS!!!!!
 
- - chord database
- build chord functions using half steps
- manually overriding 1-9
+keyboard layout:
+ w e   t y u
+a s d f g h j k
+
+Chords are bound to number keys 0-9 and labeled at the top
+
+TO CHANGE OCTAVE OF SINGLE NOTES (right hand) USE LEFT AND RIGHT ARROW KEYS
+TO CHANGE OCTAVE OF THE CHORDS USE TAB AND DELETE (tab is forward, delete is backward)
+
+To change the chords, hit enter. Hit the button of the number you want to change (on your keyboard)
+to pick root and tonality, click the letters on the screen
+
+To reset the chord list, hit "n"
+
+
+Features that are on their way:
+
+ - recording/playback
+ - transposition (stupid saxaphone players)
+ - ML harmonization
 """
+
 import pygame
 import numpy as np
 import time
@@ -145,7 +163,7 @@ font2 = pygame.font.Font('freesansbold.ttf', 30)
 def drawChordList(chordList, octaveNum):
     coords = [50, 100]
     for key in [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]:
-        text = font.render(str(key), True, (0, 0, 255))
+        text = font.render(str(key), True, (255, 255, 100))
         textRect = text.get_rect()
         textRect.center = (coords[0], coords[1])
         #print(chordList[str(key) + str(octaveNum)])
@@ -344,11 +362,7 @@ def drawChordMidi(midi, distance):
                                      pygame.Rect(15.857 * 7 * octave + whiteKeys.index(keyName[0]) * 15.857 + 10.58,
                                                  440 - (100 * (distance - frame)), 2*(15.857 -10.58), 100 * midi[frame][0] + 1))
 
-def createKeyboard():
-    start = time.time()
-    midi = {}
-    chordMidi = {}
-    #DEFAULT CHORD LIST
+def resetChordList():
     chordList = {}
     for num in range(8):
         chordList["1" + str(num)] = ["a" + str(num), "d" + str(num), "g" + str(num), 0, "CM"]
@@ -361,6 +375,14 @@ def createKeyboard():
         chordList["8" + str(num)] = ["d" + str(num), "g" + str(num), "k" + str(num), 0, "C1"]
         chordList["9" + str(num)] = ["s" + str(num), "f" + str(num), "g" + str(num), "j" + str(num), 0, "G7"]
         chordList["0" + str(num)] = ["a" + str(num), "e" + str(num), "g" + str(num), "u" + str(num), 0, "Cm7"]
+    return chordList
+
+def createKeyboard():
+    start = time.time()
+    midi = {}
+    chordMidi = {}
+    #DEFAULT CHORD LIST
+    chordList = resetChordList()
 
     chordKeys = "1234567890"
     keylist = 'awsedftgyhuj'
@@ -406,6 +428,8 @@ def createKeyboard():
                     print(chordList)
                     chordList = setChordList(chordList)
                     print(chordList)
+                if event.key == pygame.K_n:
+                    chordList = resetChordList()
                 else:
                     if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
                         if event.key == pygame.K_LEFT:
