@@ -339,11 +339,11 @@ def drawMidi(midi, distance):
                 octave = int(note[-1])
                 if keyName in whiteKeys:
                     pygame.draw.rect(screen, (100, 100, 255),
-                             pygame.Rect(15.857*7*octave + whiteKeys.index(keyName)*15.857, 440-(100*(distance - frame)), 15.875, 100*midi[frame][0]+1))
+                             pygame.Rect(15.857*7*octave + whiteKeys.index(keyName)*15.857, 440-(100*(distance - frame)), 15.875, 100*midi[frame][0]+4))
                 else:
                     pygame.draw.rect(screen, (50, 50, 255),
                                      pygame.Rect(15.857 * 7 * octave + whiteKeys.index(keyName[0]) * 15.857 + 10.58,
-                                                 440 - (100 * (distance - frame)), 2*(15.857 -10.58), 100 * midi[frame][0] + 1))
+                                                 440 - (100 * (distance - frame)), 2*(15.857 -10.58), 100 * midi[frame][0] + 4))
 
 def drawChordMidi(midi, distance):
     whiteKeys = ["C", "D", "E", "F", "G", "A", "B"]
@@ -356,11 +356,11 @@ def drawChordMidi(midi, distance):
                 octave = int(note[-1])
                 if keyName in whiteKeys:
                     pygame.draw.rect(screen, (100, 255, 100),
-                             pygame.Rect(15.857*7*octave + whiteKeys.index(keyName)*15.857, 440-(100*(distance - frame)), 15.875, 100*midi[frame][0]+1))
+                             pygame.Rect(15.857*7*octave + whiteKeys.index(keyName)*15.857, 440-(100*(distance - frame)), 15.875, 100*midi[frame][0]+4))
                 else:
-                    pygame.draw.rect(screen, (50, 255, 50),
+                    pygame.draw.rect(screen, (10, 255, 10),
                                      pygame.Rect(15.857 * 7 * octave + whiteKeys.index(keyName[0]) * 15.857 + 10.58,
-                                                 440 - (100 * (distance - frame)), 2*(15.857 -10.58), 100 * midi[frame][0] + 1))
+                                                 440 - (100 * (distance - frame)), 2*(15.857 -10.58), 100 * midi[frame][0] + 4))
 
 def resetChordList():
     chordList = {}
@@ -378,6 +378,8 @@ def resetChordList():
     return chordList
 
 def createKeyboard():
+    recording = False
+    playing = False
     start = time.time()
     midi = {}
     chordMidi = {}
@@ -391,7 +393,12 @@ def createKeyboard():
     chordOctave = 4
     played = False
     prev = time.time()
+    prevMusic = []
+    music = []
+    first = True
+    looping = False
     while True:
+        #print(prevMusic)
         current = time.time()
         #played = True
         if not played:
@@ -424,12 +431,51 @@ def createKeyboard():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     pygame.quit()
-                if event.key == pygame.K_RETURN:
-                    print(chordList)
+                elif event.key == pygame.K_RETURN:
+                    #print(chordList)
                     chordList = setChordList(chordList)
-                    print(chordList)
-                if event.key == pygame.K_n:
+                    #print(chordList)
+                elif event.key == pygame.K_n:
                     chordList = resetChordList()
+                elif event.key == pygame.K_r:
+                    if not recording:
+                        recording = True
+                        music = []
+                    else:
+                        recording = False
+                        first = True
+                        prevMusic = []
+                        for item in music:
+                            prevMusic.append([False, item])
+                elif event.key == pygame.K_p:
+                    if not playing:
+                        playing = True
+                        playbackStart = time.time()
+                    else:
+                        playing = False
+                        for i in range(len(prevMusic)):
+                            prevMusic[i][0] = False
+                        for i in notes.keys():
+                            try:
+                                releaseNote(i)
+                            except:
+                                pass
+                elif event.key == pygame.K_l:
+                    if not looping:
+                        looping = True
+                        if not playing:
+                            playing = True
+                            playbackStart = time.time()
+                    else:
+                        looping = False
+                        playing = False
+                        for i in range(len(prevMusic)):
+                            prevMusic[i][0] = False
+                        for i in notes.keys():
+                            try:
+                                releaseNote(i)
+                            except:
+                                pass
                 else:
                     if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
                         if event.key == pygame.K_LEFT:
@@ -442,24 +488,34 @@ def createKeyboard():
                             chordOctave -= 1
                         elif event.key == pygame.K_TAB:
                             chordOctave += 1
-                        print(chordOctave)
+                        #print(chordOctave)
 
                     elif str(event.unicode) in keylist:
                         key = str(event.unicode)
                         try:
-                            print(notes[key + str(octave)][1])
+                            #print(notes[key + str(octave)][1])
                             #notes[key + str(octave)][0].play()
                             playNote(key + str(octave))
+                            if recording:
+                                if first:
+                                    first = False
+                                    newStart = time.time()
+                                music.append(["note", key + str(octave), True, time.time() - newStart])
                         except:
                             print("not in dictionary")
 
                     elif str(event.unicode) in chordKeys:
                         key = str(event.unicode) + str(chordOctave)
-                        print(key)
+                        #print(key)
                         try:
                             playChord(chordList[key])
                             chordList[key][-2] = 1
-                            print(chordList[key])
+                            #print(chordList[key])
+                            if recording:
+                                if first:
+                                    first = False
+                                    newStart = time.time()
+                                music.append(["chord", key, True, time.time() - newStart])
                         except:
                             print("not a chord")
             if event.type == pygame.KEYUP and event.key not in modifiers:
@@ -467,24 +523,64 @@ def createKeyboard():
                     key = str(event.unicode)+str(octave)
                     #notes[key][0].fadeout(100)
                     releaseNote(key)
+                    if recording:
+                        music.append(["note", key, False, time.time() - newStart])
                 except:
                     pass
                 try:
                     key = str(event.unicode)+ str(chordOctave)
-                    print("releasing")
+                    #print("releasing")
                     releaseChord(chordList[key])
                     chordList[key][-2] = 0
+                    if recording:
+                        music.append(["chord", key, False, time.time() - newStart])
                 except:
                     pass
 
         chordNotes = []
+
+        if playing:
+            position = 0
+            print(prevMusic)
+            while position < len(prevMusic) and prevMusic[position][1][3] <= time.time() - playbackStart:
+                #ready = input()
+                if not prevMusic[position][0]:
+                    note = prevMusic[position][1]
+                    if note[0] == "note":
+                        if note[2]:
+                            playNote(note[1])
+                            prevMusic[position][0] = True
+                        else:
+                            releaseNote(note[1])
+                            prevMusic[position][0] = True
+                            #print("releasing")
+                    note = prevMusic[position][1]
+                    if note[0] == "chord":
+                        if note[2]:
+                            playChord(chordList[note[1]])
+                            prevMusic[position][0] = True
+                            chordList[note[1]][-2] = 1
+                        else:
+                            releaseChord(chordList[note[1]])
+                            prevMusic[position][0] = True
+                            chordList[note[1]][-2] = 0
+                            # print("releasing")
+                position += 1
+                if position == len(prevMusic):
+                    playing = False
+                    for i in range(len(prevMusic)):
+                        prevMusic[i][0] = False
+                    if looping:
+                        playing = True
+                        playbackStart = time.time()
+
 
         for chord in chordList.keys():
             if chordList[chord][-2] != 0:
                 for note in range(len(chordList[chord]) - 2):
                     chordNotes.append(chordList[chord][note])
 
-        print(chordNotes)
+        #print(chordNotes)
         midi[current-start] = [current - prev, []]
         chordMidi[current-start] = [current - prev, []]
         for note in notes:
