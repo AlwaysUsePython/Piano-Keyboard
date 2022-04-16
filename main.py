@@ -1,23 +1,17 @@
+
+
 """
 CONTROLS!!!!!
-
 keyboard layout:
  w e   t y u
 a s d f g h j k
-
 Chords are bound to number keys 0-9 and labeled at the top
-
 TO CHANGE OCTAVE OF SINGLE NOTES (right hand) USE LEFT AND RIGHT ARROW KEYS
 TO CHANGE OCTAVE OF THE CHORDS USE TAB AND DELETE (tab is forward, delete is backward)
-
 To change the chords, hit enter. Hit the button of the number you want to change (on your keyboard)
 to pick root and tonality, click the letters on the screen
-
 To reset the chord list, hit "n"
-
-
 Features that are on their way:
-
  - recording/playback
  - transposition (stupid saxaphone players)
  - ML harmonization
@@ -200,7 +194,7 @@ def drawRoots():
             coords[1] = 400
 
 def drawTypes():
-    types = ["M", "m", "7", "d", "m7", "M7"]
+    types = ["M", "m", "7", "d", "m7", "M7", "d7"]
     length = len(types)
     coords = [1000 / (2*length), 300]
     for text in types:
@@ -242,6 +236,11 @@ def buildChord(root, tonality):
         chord.append(notes[(noteIndex + 4) % 12])
         chord.append(notes[(noteIndex + 7) % 12])
         chord.append(notes[(noteIndex + 11) % 12])
+    elif tonality == "d7":
+        chord.append(notes[(noteIndex + 3) % 12])
+        chord.append(notes[(noteIndex + 6) % 12])
+        chord.append(notes[(noteIndex + 9) % 12])
+
 
     chord.append(0)
     chord.append(upperRoot + tonality)
@@ -251,6 +250,7 @@ def buildChord(root, tonality):
 
 
 def setChordList(chordList):
+
     roots = ["C", "D", "E", "F", "G", "A", "B", "C#", "D#", "F#", "G#", "A#"]
     positions = []
     coords = [1000/14, 200]
@@ -261,7 +261,7 @@ def setChordList(chordList):
             coords[0] = 1000/14 + 1000/7
             coords[1] = 400
 
-    types = ["M", "m", "7", "d", "m7", "M7"]
+    types = ["M", "m", "7", "d", "m7", "M7", "d7"]
     typePositions = []
     coords = [1000 / (2*len(types)), 300]
     for item in roots:
@@ -377,7 +377,44 @@ def resetChordList():
         chordList["0" + str(num)] = ["a" + str(num), "e" + str(num), "g" + str(num), "u" + str(num), 0, "Cm7"]
     return chordList
 
+def setBrunoChordList():
+    chordList = {}
+    for num in range(8):
+        chordList["1" + str(num)] = ["a" + str(num), "e" + str(num), "g" + str(num), 0, "Cm"]
+        chordList["2" + str(num)] = ["f" + str(num), "y" + str(num), "a" + str(num), 0, "Fm"]
+        chordList["3" + str(num)] = ["g" + str(num), "f" + str(num), "s" + str(num), "j" + str(num), 0, "G7"]
+        chordList["4" + str(num)] = ["e" + str(num), "y" + str(num), "a" + str(num), 0, "G#M"]
+        chordList["5" + str(num)] = ["e" + str(num), "g" + str(num), "u" + str(num), 0, "D#M"]
+        chordList["6" + str(num)] = ["u" + str(num), "s" + str(num), "f" + str(num), 0, "A#M"]
+        chordList["7" + str(num)] = ["a" + str(num), "e" + str(num), "g" + str(num), 0, "Cm"]
+        chordList["8" + str(num)] = ["d" + str(num), "g" + str(num), "k" + str(num), 0, "C1"]
+        chordList["9" + str(num)] = ["s" + str(num), "f" + str(num), "g" + str(num), 0, "GM"]
+        chordList["0" + str(num)] = ["a" + str(num), "e" + str(num), "g" + str(num), "u" + str(num), 0, "Cm7"]
+    return chordList
+
 def createKeyboard():
+    brunoBase = [[False, ['chord', '14', True, 9.5367431640625e-07]],
+                 [False, ['note', 'a3', True, 0.017099857330322266]],
+                 [False, ['note', 'a3', False, 0.2619178295135498]],
+                 [False, ['chord', '14', False, 0.32324814796447754]],
+                 [False, ['note', 'g3', True, 0.5088989734649658]], [False, ['chord', '14', True, 0.5089259147644043]],
+                 [False, ['note', 'g3', False, 0.6643409729003906]],
+                 [False, ['chord', '14', False, 0.6956541538238525]], [False, ['note', 'f3', True, 0.8046340942382812]],
+                 [False, ['chord', '24', True, 0.8046588897705078]], [False, ['note', 'f3', False, 1.1281230449676514]],
+                 [False, ['chord', '24', False, 1.1281518936157227]], [False, ['note', 'y3', True, 1.298907995223999]],
+                 [False, ['chord', '24', True, 1.2989230155944824]], [False, ['note', 'y3', False, 1.563812017440796]],
+                 [False, ['chord', '24', False, 1.6265239715576172]], [False, ['note', 'g3', True, 1.7830960750579834]],
+                 [False, ['chord', '34', True, 1.7989418506622314]], [False, ['note', 'g3', False, 2.081191062927246]],
+                 [False, ['chord', '34', False, 2.1286540031433105]],
+                 [False, ['chord', '34', True, 2.3028149604797363]], [False, ['note', 'j3', True, 2.3194658756256104]],
+                 [False, ['note', 'j3', False, 2.639326810836792]], [False, ['chord', '34', False, 2.63934588432312]],
+                 [False, ['note', 'y3', True, 2.8161230087280273]], [False, ['chord', '24', True, 2.8161420822143555]],
+                 [False, ['note', 'y3', False, 3.1198718547821045]], [False, ['chord', '24', False, 3.201758861541748]],
+                 [False, ['note', 'f3', True, 3.316657066345215]], [False, ['chord', '24', True, 3.3492860794067383]],
+                 [False, ['note', 'f3', False, 3.7276740074157715]], [False, ['chord', '24', False, 3.776845932006836]],
+                 [False, ['chord', '24', True, 3.8912880420684814]], [False, ['note', 'y3', True, 3.8913450241088867]],
+                 [False, ['chord', '24', False, 4.071817874908447]], [False, ['note', 'y3', False, 4.104866027832031]]]
+
     recording = False
     playing = False
     start = time.time()
@@ -437,6 +474,9 @@ def createKeyboard():
                     #print(chordList)
                 elif event.key == pygame.K_n:
                     chordList = resetChordList()
+                elif event.key == pygame.K_b:
+                    prevMusic = brunoBase
+                    chordList = setBrunoChordList()
                 elif event.key == pygame.K_r:
                     if not recording:
                         recording = True
@@ -460,6 +500,11 @@ def createKeyboard():
                                 releaseNote(i)
                             except:
                                 pass
+                        for i in chordList.keys():
+                            try:
+                                chordList[i][-2] = 0
+                            except:
+                                pass
                 elif event.key == pygame.K_l:
                     if not looping:
                         looping = True
@@ -474,6 +519,11 @@ def createKeyboard():
                         for i in notes.keys():
                             try:
                                 releaseNote(i)
+                            except:
+                                pass
+                        for i in chordList.keys():
+                            try:
+                                chordList[i][-2] = 0
                             except:
                                 pass
                 else:
@@ -611,3 +661,4 @@ def createKeyboard():
 
 createKeyboard()
 pygame.mixer.quit()
+
